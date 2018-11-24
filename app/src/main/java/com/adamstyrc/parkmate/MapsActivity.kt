@@ -2,15 +2,20 @@ package com.adamstyrc.parkmate
 
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
 import kotlinx.android.synthetic.main.activity_maps.*
 
 
@@ -23,13 +28,16 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
     private var originLocation: Location? = null
     private var destinationMarker: Marker? = null
 
+    lateinit var routeController: RouteController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         Mapbox.getInstance(this, "pk.eyJ1IjoiYWRhbXN0eXJjIiwiYSI6ImNqb3ZraWhzcDBlcDAzcXJwbjRldGlpNW0ifQ.-2YjpnaUbKADGXwKCBszBA");
+        routeController = RouteController(applicationContext)
+
         setContentView(R.layout.activity_maps)
         mapView.onCreate(savedInstanceState)
-
         mapView.getMapAsync {
             mapboxMap = it
             enableLocationComponent()
@@ -43,7 +51,29 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
                     MarkerOptions().position(point)
                 )
             }
+
+            mapboxMap.setOnMarkerClickListener { marker ->
+                val destinationPosition = Point.fromLngLat(marker.position.longitude, marker.position.latitude)
+                val originPosition = Point.fromLngLat(originLocation!!.longitude, originLocation!!.latitude)
+
+                routeController.getRoute(originPosition,
+                    destinationPosition,
+                    mapView,
+                    mapboxMap)
+
+                true
+            }
         }
+
+        btnFindParking.setOnClickListener {
+            val options = NavigationLauncherOptions.builder()
+                .directionsRoute(routeController.currentRoute)
+                .shouldSimulateRoute(true)
+                .build()
+
+            NavigationLauncher.startNavigation(this, options)
+        }
+
 //        mapView.on
 //        enableLocationComponent()
         //        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -60,6 +90,8 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
     override fun onResume() {
         super.onResume()
         mapView.onResume()
+
+        btnFindParking.visibility = if (routeController.currentRoute != null) View.VISIBLE else View.GONE
     }
 
     override fun onPause() {
@@ -107,6 +139,7 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
