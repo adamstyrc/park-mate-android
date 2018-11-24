@@ -6,8 +6,10 @@ import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.adamstyrc.parkmate.ui.activity.NavigationActivity
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
@@ -16,7 +18,11 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
+import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import kotlinx.android.synthetic.main.activity_maps.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MapsActivity : AppCompatActivity(), PermissionsListener {
@@ -30,11 +36,12 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
 
     lateinit var routeController: RouteController
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Mapbox.getInstance(this, "pk.eyJ1IjoiYWRhbXN0eXJjIiwiYSI6ImNqb3ZraWhzcDBlcDAzcXJwbjRldGlpNW0ifQ.-2YjpnaUbKADGXwKCBszBA");
-        routeController = RouteController(applicationContext)
+        routeController = RouteController.getInstance(applicationContext)
 
         setContentView(R.layout.activity_maps)
         mapView.onCreate(savedInstanceState)
@@ -50,28 +57,31 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
                 destinationMarker = mapboxMap.addMarker(
                     MarkerOptions().position(point)
                 )
-            }
 
-            mapboxMap.setOnMarkerClickListener { marker ->
-                val destinationPosition = Point.fromLngLat(marker.position.longitude, marker.position.latitude)
+                val destinationPosition = Point.fromLngLat(point.longitude, point.latitude)
                 val originPosition = Point.fromLngLat(originLocation!!.longitude, originLocation!!.latitude)
 
                 routeController.getRoute(originPosition,
-                    destinationPosition,
-                    mapView,
-                    mapboxMap)
+                    destinationPosition, object : Callback<DirectionsResponse> {
+                        override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
+                            routeController.drawRoute(mapView, mapboxMap)
+                            updateNavigateButton()
+                        }
 
-                true
+                        override fun onFailure(call: Call<DirectionsResponse>, t: Throwable) {
+                        }
+                    })
             }
         }
 
         btnFindParking.setOnClickListener {
-            val options = NavigationLauncherOptions.builder()
-                .directionsRoute(routeController.currentRoute)
-                .shouldSimulateRoute(true)
-                .build()
-
-            NavigationLauncher.startNavigation(this, options)
+//            val options = NavigationLauncherOptions.builder()
+//                .directionsRoute(routeController.currentRoute)
+//                .shouldSimulateRoute(true)
+//                .build()
+//
+//            NavigationLauncher.startNavigation(this, options)
+            NavigationActivity.startNavigationActivity(this)
         }
 
 //        mapView.on
@@ -91,7 +101,7 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         super.onResume()
         mapView.onResume()
 
-        btnFindParking.visibility = if (routeController.currentRoute != null) View.VISIBLE else View.GONE
+        updateNavigateButton()
     }
 
     override fun onPause() {
@@ -114,13 +124,9 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         mapView.onLowMemory()
     }
 
-//    private fun initMap(googleMap: GoogleMap) {
-//        mMap = googleMap
-//
-//        val tampereLatLng = LatLng(61.4972373, 23.7579932)
-//        mMap.addMarker(MarkerOptions().position(tampereLatLng).title("Marker in Tampere"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tampereLatLng, 15f))
-//    }
+    private fun updateNavigateButton() {
+        btnFindParking.visibility = if (routeController.currentRoute != null) View.VISIBLE else View.GONE
+    }
 
     private fun enableLocationComponent() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {

@@ -19,10 +19,13 @@
     <Button
             android:id="@+id/btnFindParking"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginLeft="@dimen/general_margin"
             android:layout_marginRight="@dimen/general_margin"
-            android:text="Find parking"
+            android:layout_marginBottom="@dimen/small_margin"
+            android:text="Navigate"
+            android:textColor="@android:color/white"
+            android:background="#506DE8"
             app:layout_constraintBottom_toBottomOf="parent"
     />
 
