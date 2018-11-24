@@ -7,7 +7,6 @@ import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
-import kotlinx.android.synthetic.main.activity_maps.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,6 +25,7 @@ class RouteController(val applicationContext: Context) {
             return instance!!
         }
     }
+    var destination : Point? = null
     var currentRoute: DirectionsRoute? = null
     var navigationMapRoute: NavigationMapRoute? = null
 
@@ -48,6 +48,7 @@ class RouteController(val applicationContext: Context) {
                         return
                     }
 
+                    this@RouteController.destination = destination
                     currentRoute = body.routes()[0]
                     callback.onResponse(call, response)
                 }

@@ -19,6 +19,9 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.google.firebase.firestore.FirebaseFirestore
+
+
 
 
 class MapsActivity : AppCompatActivity(), PermissionsListener {
@@ -35,6 +38,7 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        FirebaseFirestore.getInstance()
         Mapbox.getInstance(this, "pk.eyJ1IjoiYWRhbXN0eXJjIiwiYSI6ImNqb3ZraWhzcDBlcDAzcXJwbjRldGlpNW0ifQ.-2YjpnaUbKADGXwKCBszBA");
         routeController = RouteController.getInstance(applicationContext)
 
