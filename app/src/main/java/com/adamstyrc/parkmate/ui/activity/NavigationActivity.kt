@@ -50,6 +50,10 @@ class NavigationActivity : AppCompatActivity() {
 
             retrieveMapboxNavigation.addProgressChangeListener(progressChangeListener)
         }
+
+        btnNavigateToParking.setOnClickListener {
+            navigateToClosestParkingLot()
+        }
     }
 
     override fun onStart() {
@@ -104,6 +108,8 @@ class NavigationActivity : AppCompatActivity() {
             }
 
             override fun onSuccess(response: DocumentSnapshot) {
+                vNavigation.retrieveMapboxNavigation()!!.removeProgressChangeListener(progressChangeListener)
+
                 val closestParking = response
 
                 routeController.getRouteToParking(closestParking.getLocation().toPoint(),

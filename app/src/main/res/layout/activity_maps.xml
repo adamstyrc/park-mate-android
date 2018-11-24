@@ -25,7 +25,7 @@
             android:layout_marginBottom="@dimen/small_margin"
             android:text="Navigate"
             android:textColor="@android:color/white"
-            android:background="#506DE8"
+            android:background="@color/blue"
             app:layout_constraintBottom_toBottomOf="parent"
     />
 
