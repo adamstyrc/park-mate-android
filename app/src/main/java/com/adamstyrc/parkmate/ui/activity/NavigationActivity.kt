@@ -16,7 +16,6 @@ import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeLis
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
 import retrofit2.Call
 import retrofit2.Response
-import java.lang.IllegalStateException
 
 
 class NavigationActivity : AppCompatActivity() {
@@ -44,7 +43,7 @@ class NavigationActivity : AppCompatActivity() {
         vNavigation.initialize {
 //            val origin = Point.fromLngLat(ORIGIN_LONGITUDE, ORIGIN_LATITUDE)
 //            val destination = Point.fromLngLat(DESTINATION_LONGITUDE, DESTINATION_LATITUDE)
-            val navigationOptions = routeController.prepareCurrentNavigationOptions(this)
+            val navigationOptions = routeController.prepareNavigationOptionsToDestination(this)
             vNavigation.startNavigation(navigationOptions)
 
             val retrieveMapboxNavigation = vNavigation.retrieveMapboxNavigation()!!
@@ -107,15 +106,14 @@ class NavigationActivity : AppCompatActivity() {
             override fun onSuccess(response: DocumentSnapshot) {
                 val closestParking = response
 
-                routeController.getRoute(routeController.origin!!,
-                    closestParking.getLocation().toPoint(),
+                routeController.getRouteToParking(closestParking.getLocation().toPoint(),
                     object: retrofit2.Callback<DirectionsResponse> {
                         override fun onFailure(call: Call<DirectionsResponse>, t: Throwable) {
                             Logger.log(t.message!!)
                         }
 
                         override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
-                            val navigationOptions = routeController.prepareCurrentNavigationOptions(this@NavigationActivity)
+                            val navigationOptions = routeController.prepareNavigationOptionsToParking(this@NavigationActivity)
                             vNavigation.startNavigation(navigationOptions)
                         }
                     })

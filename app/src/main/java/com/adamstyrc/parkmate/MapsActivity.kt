@@ -122,7 +122,7 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
     }
 
     private fun updateNavigateButton() {
-        btnFindParking.visibility = if (routeController.currentRoute != null) View.VISIBLE else View.GONE
+        btnFindParking.visibility = if (routeController.currentRouteToDestination != null) View.VISIBLE else View.GONE
     }
 
     private fun enableLocationComponent() {

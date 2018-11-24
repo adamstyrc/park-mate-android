@@ -30,8 +30,11 @@ class RouteController(val applicationContext: Context) {
     }
     var origin : Point? = null
     var destination : Point? = null
-    var currentRoute: DirectionsRoute? = null
-    var navigationMapRoute: NavigationMapRoute? = null
+    var currentRouteToDestination: DirectionsRoute? = null
+    var navigationMapRouteToDestination: NavigationMapRoute? = null
+
+    var currentRouteToParking: DirectionsRoute? = null
+
 
     fun getRoute(origin: Point, destination: Point, callback: Callback<DirectionsResponse>) {
         Logger.log("Mapbox route request.")
@@ -54,7 +57,7 @@ class RouteController(val applicationContext: Context) {
 
                     this@RouteController.origin = origin
                     this@RouteController.destination = destination
-                    currentRoute = body.routes()[0]
+                    currentRouteToDestination = body.routes()[0]
                     callback.onResponse(call, response)
                 }
 
@@ -62,18 +65,53 @@ class RouteController(val applicationContext: Context) {
                     Logger.log("Error: " + t.message)
                     callback.onFailure(call, t)
                 }
-
-
-
             }
         )
     }
 
-    fun prepareCurrentNavigationOptions(activity: Activity) : NavigationViewOptions {
+    fun getRouteToParking(parkingLocation: Point, callback: Callback<DirectionsResponse>) {
+        MapboxApi.getRoute(
+            applicationContext,
+            origin!!,
+            parkingLocation,
+            object : Callback<DirectionsResponse> {
+                override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
+                    Logger.log("Response code: " + response.code())
+                    val body = response.body()
+                    if (body == null) {
+                        Logger.log("No routes found, make sure you set the right user and access token.")
+                        return
+                    } else if (body.routes().size < 1) {
+                        Logger.log("No routes found")
+                        return
+                    }
+
+                    currentRouteToParking = body.routes()[0]
+                    callback.onResponse(call, response)
+                }
+
+                override fun onFailure(call: Call<DirectionsResponse>, t: Throwable) {
+                    Logger.log("Error: " + t.message)
+                    callback.onFailure(call, t)
+                }
+            }
+        )
+    }
+
+    fun prepareNavigationOptionsToDestination(activity: Activity) : NavigationViewOptions {
+        return prepareNavigationOptions(activity, currentRouteToDestination!!)
+
+    }
+
+    fun prepareNavigationOptionsToParking(activity: Activity) : NavigationViewOptions {
+        return prepareNavigationOptions(activity, currentRouteToParking!!)
+    }
+
+    private fun prepareNavigationOptions(activity: Activity, directionsRoute: DirectionsRoute): NavigationViewOptions {
         return NavigationViewOptions.builder()
-            .directionsRoute(currentRoute)
+            .directionsRoute(directionsRoute)
             .shouldSimulateRoute(true)
-            .navigationListener(object  : NavigationListener {
+            .navigationListener(object : NavigationListener {
                 override fun onNavigationFinished() {
                     Logger.log("onNavigationFinished")
                 }
@@ -91,12 +129,12 @@ class RouteController(val applicationContext: Context) {
     }
 
     fun drawRoute(mapView: MapView, mapboxMap: MapboxMap) {
-        if (navigationMapRoute != null) {
-            navigationMapRoute!!.removeRoute()
+        if (navigationMapRouteToDestination != null) {
+            navigationMapRouteToDestination!!.removeRoute()
         } else {
-            navigationMapRoute =
+            navigationMapRouteToDestination =
                     NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute)
         }
-        navigationMapRoute!!.addRoute(currentRoute)
+        navigationMapRouteToDestination!!.addRoute(currentRouteToDestination)
     }
 }
