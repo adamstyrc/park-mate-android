@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.adamstyrc.parkmate.Logger
 import com.adamstyrc.parkmate.R
 import com.adamstyrc.parkmate.RouteController
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions
@@ -36,13 +37,16 @@ class NavigationActivity : AppCompatActivity() {
                 .shouldSimulateRoute(true)
                 .navigationListener(object  : NavigationListener {
                     override fun onNavigationFinished() {
-                        finish()
+                        Logger.log("onNavigationFinished")
                     }
 
                     override fun onNavigationRunning() {
+                        Logger.log("onNavigationRunning")
                     }
 
                     override fun onCancelNavigation() {
+                        Logger.log("onCancelNavigation")
+                        finish()
                     }
                 })
                 .build()
