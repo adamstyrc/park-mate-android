@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.adamstyrc.parkmate.api.ParkingApi
 import com.adamstyrc.parkmate.ui.activity.NavigationActivity
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -27,20 +28,19 @@ import com.google.firebase.firestore.FirebaseFirestore
 class MapsActivity : AppCompatActivity(), PermissionsListener {
 
     lateinit var routeController: RouteController
+    lateinit var parkingApi: ParkingApi
 
     private lateinit var mapboxMap: MapboxMap
     private lateinit var permissionsManager: PermissionsManager
     private var originLocation: Location? = null
     private var destinationMarker: Marker? = null
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        FirebaseFirestore.getInstance()
         Mapbox.getInstance(this, "pk.eyJ1IjoiYWRhbXN0eXJjIiwiYSI6ImNqb3ZraWhzcDBlcDAzcXJwbjRldGlpNW0ifQ.-2YjpnaUbKADGXwKCBszBA");
         routeController = RouteController.getInstance(applicationContext)
+        parkingApi = ParkingApi()
 
         setContentView(R.layout.activity_maps)
         mapView.onCreate(savedInstanceState)
@@ -76,11 +76,28 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         btnFindParking.setOnClickListener {
             NavigationActivity.startNavigationActivity(this)
         }
+
+
     }
 
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+
+        if (BuildConfig.DEBUG) {
+            parkingApi.getParkings().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    it.result.documents.forEach { parking ->
+                        val location = parking.getLocation()
+
+                        mapboxMap.addMarker(
+                            MarkerOptions().position(location.toLatLnt())
+                                .title(parking.id)
+                        )
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -146,7 +163,4 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
             finish()
         }
     }
-
-
-
 }

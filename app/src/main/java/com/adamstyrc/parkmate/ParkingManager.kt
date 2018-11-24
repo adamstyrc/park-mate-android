@@ -15,7 +15,7 @@ class ParkingManager {
 
             val resultDistance = FloatArray(1)
             parkings.forEach {
-                val parkingLocation = it.get("location") as GeoPoint
+                val parkingLocation = it.getLocation()
                 Location.distanceBetween(
                     point.latitude(), point.longitude(),
                     parkingLocation.latitude, parkingLocation.longitude,
