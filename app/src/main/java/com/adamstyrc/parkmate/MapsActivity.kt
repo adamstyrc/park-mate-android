@@ -2,7 +2,6 @@ package com.adamstyrc.parkmate
 
 import android.location.Location
 import android.os.Bundle
-import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
@@ -16,9 +15,6 @@ import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import kotlinx.android.synthetic.main.activity_maps.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,14 +23,13 @@ import retrofit2.Response
 
 class MapsActivity : AppCompatActivity(), PermissionsListener {
 
-//    private lateinit var mMap: GoogleMap
+    lateinit var routeController: RouteController
 
     private lateinit var mapboxMap: MapboxMap
     private lateinit var permissionsManager: PermissionsManager
     private var originLocation: Location? = null
     private var destinationMarker: Marker? = null
 
-    lateinit var routeController: RouteController
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,21 +70,8 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         }
 
         btnFindParking.setOnClickListener {
-//            val options = NavigationLauncherOptions.builder()
-//                .directionsRoute(routeController.currentRoute)
-//                .shouldSimulateRoute(true)
-//                .build()
-//
-//            NavigationLauncher.startNavigation(this, options)
             NavigationActivity.startNavigationActivity(this)
         }
-
-//        mapView.on
-//        enableLocationComponent()
-        //        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-//        mapFragment.getMapAsync { googleMap ->
-//            initMap(googleMap)
-//        }
     }
 
     override fun onStart() {

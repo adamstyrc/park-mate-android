@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "539313503549",
+    "firebase_url": "https://parkmate-3b4ff.firebaseio.com",
+    "project_id": "parkmate-3b4ff",
+    "storage_bucket": "parkmate-3b4ff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539313503549:android:6f5f54dfed6b9218",
+        "android_client_info": {
+          "package_name": "com.adamstyrc.parkmate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539313503549-5m7p795pl7lmtjspjf2bihtu6etiivk6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adamstyrc.parkmate",
+            "certificate_hash": "e2aaa6450b12625cbbe93803c6d6d8b1ff64f809"
+          }
+        },
+        {
+          "client_id": "539313503549-2hs7rnhcdk13j1sj06j855ugnpqmldit.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBXk7dzLnPcPA8uqDKWzh-km38n3q8FoY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "539313503549-2hs7rnhcdk13j1sj06j855ugnpqmldit.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
