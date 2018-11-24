@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
 import com.adamstyrc.parkmate.api.ParkingApi
+import com.adamstyrc.parkmate.controller.ParkingMarkersController
 import com.adamstyrc.parkmate.ui.activity.NavigationActivity
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -20,9 +21,6 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.google.firebase.firestore.FirebaseFirestore
-
-
 
 
 class MapsActivity : AppCompatActivity(), PermissionsListener {
@@ -87,14 +85,10 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         if (BuildConfig.DEBUG) {
             parkingApi.getParkings().addOnCompleteListener {
                 if (it.isSuccessful) {
-                    it.result.documents.forEach { parking ->
-                        val location = parking.getLocation()
 
-                        mapboxMap.addMarker(
-                            MarkerOptions().position(location.toLatLnt())
-                                .title(parking.id)
-                        )
-                    }
+                    val documents = it.result.documents
+                    ParkingMarkersController.getInstance(applicationContext)
+                        .setMarkers(mapboxMap, documents)
                 }
             }
         }
