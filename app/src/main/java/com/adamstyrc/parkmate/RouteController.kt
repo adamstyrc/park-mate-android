@@ -1,11 +1,14 @@
 package com.adamstyrc.parkmate
 
+import android.app.Activity
 import android.content.Context
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions
+import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,6 +28,7 @@ class RouteController(val applicationContext: Context) {
             return instance!!
         }
     }
+    var origin : Point? = null
     var destination : Point? = null
     var currentRoute: DirectionsRoute? = null
     var navigationMapRoute: NavigationMapRoute? = null
@@ -48,6 +52,7 @@ class RouteController(val applicationContext: Context) {
                         return
                     }
 
+                    this@RouteController.origin = origin
                     this@RouteController.destination = destination
                     currentRoute = body.routes()[0]
                     callback.onResponse(call, response)
@@ -62,6 +67,27 @@ class RouteController(val applicationContext: Context) {
 
             }
         )
+    }
+
+    fun prepareCurrentNavigationOptions(activity: Activity) : NavigationViewOptions {
+        return NavigationViewOptions.builder()
+            .directionsRoute(currentRoute)
+            .shouldSimulateRoute(true)
+            .navigationListener(object  : NavigationListener {
+                override fun onNavigationFinished() {
+                    Logger.log("onNavigationFinished")
+                }
+
+                override fun onNavigationRunning() {
+                    Logger.log("onNavigationRunning")
+                }
+
+                override fun onCancelNavigation() {
+                    Logger.log("onCancelNavigation")
+                    activity.finish()
+                }
+            })
+            .build()
     }
 
     fun drawRoute(mapView: MapView, mapboxMap: MapboxMap) {
