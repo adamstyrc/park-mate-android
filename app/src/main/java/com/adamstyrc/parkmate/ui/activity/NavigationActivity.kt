@@ -9,6 +9,7 @@ import com.adamstyrc.parkmate.Logger
 import com.adamstyrc.parkmate.ParkingManager
 import com.adamstyrc.parkmate.R
 import com.adamstyrc.parkmate.RouteController
+import com.adamstyrc.parkmate.api.ParkingApi
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions
 import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener
 import kotlinx.android.synthetic.main.activity_navigation.*
@@ -20,7 +21,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 
 class NavigationActivity : AppCompatActivity() {
 
-    lateinit var db: FirebaseFirestore
+    lateinit var parkingApi: ParkingApi
 
     var parklotUpdateRegistration : ListenerRegistration? = null
 
@@ -36,7 +37,7 @@ class NavigationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
 
-        db = FirebaseFirestore.getInstance()
+        parkingApi = ParkingApi()
         routeController = RouteController.getInstance(applicationContext)
 
         vNavigation.onCreate(savedInstanceState)
@@ -99,9 +100,7 @@ class NavigationActivity : AppCompatActivity() {
     }
 
     private fun findClosestParkingLot() {
-        db.collection("parklots")
-            .whereGreaterThan("free_spaces", 0)
-            .get()
+        ParkingApi().getAvailableParkings()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful && !task.result.isEmpty) {
                     val parkings = task.result
@@ -121,8 +120,7 @@ class NavigationActivity : AppCompatActivity() {
     }
 
     private fun registerParkingUpdates(closestParkingLot: QueryDocumentSnapshot) {
-        parklotUpdateRegistration = db.collection("parklots")
-            .document(closestParkingLot.id)
+        parklotUpdateRegistration = parkingApi.scanParking(closestParkingLot.id)
             .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                 Logger.log("Snapshot update for ${documentSnapshot!!.id} => ${documentSnapshot.data})")
 
