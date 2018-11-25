@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.adamstyrc.parkmate.api.ParkingApi
 import com.adamstyrc.parkmate.controller.ParkingMarkersController
 import com.adamstyrc.parkmate.ui.activity.NavigationActivity
+import com.google.android.gms.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.api.directions.v5.models.DirectionsResponse
@@ -30,6 +31,10 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
 
     private lateinit var mapboxMap: MapboxMap
     private lateinit var permissionsManager: PermissionsManager
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+
     private var originLocation: Location? = null
     private var destinationMarker: Marker? = null
 
@@ -39,6 +44,8 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         Mapbox.getInstance(this, "pk.eyJ1IjoiYWRhbXN0eXJjIiwiYSI6ImNqb3ZraWhzcDBlcDAzcXJwbjRldGlpNW0ifQ.-2YjpnaUbKADGXwKCBszBA");
         routeController = RouteController.getInstance(applicationContext)
         parkingApi = ParkingApi()
+
+        initLocationServices()
 
         setContentView(R.layout.activity_maps)
         mapView.onCreate(savedInstanceState)
@@ -74,9 +81,16 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         btnFindParking.setOnClickListener {
             NavigationActivity.startNavigationActivity(this)
         }
-
-
     }
+
+    private fun initLocationServices() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        locationRequest = LocationRequest()
+        locationRequest.fastestInterval = 4000
+        locationRequest.interval = 6000
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -94,16 +108,29 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         }
     }
 
+    private fun startLocationUpdates() {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            null /* Looper */)
+    }
     override fun onResume() {
         super.onResume()
         mapView.onResume()
 
         updateNavigateButton()
+
+//        if (requestingLocationUpdates) {
+            startLocationUpdates()
+//        }
+
     }
 
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     override fun onStop() {
@@ -155,6 +182,21 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         } else {
             Toast.makeText(this, "You're not gonna park anywhere!", Toast.LENGTH_LONG).show()
             finish()
+        }
+    }
+
+    val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult?) {
+            if (locationResult == null || locationResult.locations.isEmpty()) {
+                return
+            }
+
+            try {
+                originLocation = locationResult.locations.last()
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
