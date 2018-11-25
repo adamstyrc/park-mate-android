@@ -16,6 +16,15 @@
             mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
             mapbox:mapbox_cameraZoom="13" />
 
+    <ImageView
+            android:id="@+id/ivParkNow"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/park_now"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="@dimen/small_margin"/>
+
     <Button
             android:id="@+id/btnFindParking"
             android:layout_width="match_parent"

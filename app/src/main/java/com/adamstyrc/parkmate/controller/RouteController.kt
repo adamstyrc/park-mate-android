@@ -5,6 +5,7 @@ import android.content.Context
 import com.adamstyrc.parkmate.Logger
 import com.adamstyrc.parkmate.api.MapboxApi
 import com.adamstyrc.parkmate.R
+import com.adamstyrc.parkmate.toLocation
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
@@ -33,6 +34,7 @@ class RouteController(val applicationContext: Context) {
         }
     }
     var origin : Point? = null
+    var currentLocation : Point? = null
     var destination : Point? = null
     var currentRouteToDestination: DirectionsRoute? = null
     var navigationMapRouteToDestination: NavigationMapRoute? = null
@@ -77,6 +79,7 @@ class RouteController(val applicationContext: Context) {
         MapboxApi.getRoute(
             applicationContext,
             origin!!,
+//            currentLocation!!,
             parkingLocation,
             object : Callback<DirectionsResponse> {
                 override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
@@ -114,7 +117,7 @@ class RouteController(val applicationContext: Context) {
     private fun prepareNavigationOptions(activity: Activity, directionsRoute: DirectionsRoute): NavigationViewOptions {
         return NavigationViewOptions.builder()
             .directionsRoute(directionsRoute)
-            .shouldSimulateRoute(true)
+//            .shouldSimulateRoute(true)
             .navigationListener(object : NavigationListener {
                 override fun onNavigationFinished() {
                     Logger.log("onNavigationFinished")

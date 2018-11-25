@@ -98,7 +98,8 @@ class MapsActivity : AppCompatActivity(), PermissionsListener {
         super.onStart()
         mapView.onStart()
 
-        if (BuildConfig.DEBUG) {
+//        if (BuildConfig.DEBUG) {
+        if (false) {
             parkingApi.getParkings().addOnCompleteListener {
                 if (it.isSuccessful) {
 

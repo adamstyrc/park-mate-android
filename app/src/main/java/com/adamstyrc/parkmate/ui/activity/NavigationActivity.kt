@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.adamstyrc.parkmate.*
@@ -16,6 +18,7 @@ import kotlinx.android.synthetic.main.activity_navigation.*
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
+import kotlinx.android.synthetic.main.activity_maps.*
 import retrofit2.Call
 import retrofit2.Response
 
@@ -55,6 +58,11 @@ class NavigationActivity : AppCompatActivity() {
 
         btnNavigateToParking.setOnClickListener {
             navigateToClosestParkingLot()
+        }
+
+        ivParkNow.setOnClickListener {
+            parkingApi.getAvailableParkings()
+                .addOnCompleteListener {  }
         }
     }
 
@@ -109,10 +117,11 @@ class NavigationActivity : AppCompatActivity() {
                 Logger.log(message)
             }
 
-            override fun onSuccess(response: DocumentSnapshot) {
-                vNavigation.retrieveMapboxNavigation()!!.removeProgressChangeListener(progressChangeListener)
-
-                val closestParking = response
+            override fun onSuccess(closestParking: DocumentSnapshot) {
+                val navigation = vNavigation.retrieveMapboxNavigation()!!
+                navigation.removeProgressChangeListener(progressChangeListener)
+                val lastLocation = navigation.locationEngine.lastLocation!!
+                routeController.currentLocation = lastLocation.toPoint()
 
                 routeController.getRouteToParking(closestParking.getLocation().toPoint(),
                     object: retrofit2.Callback<DirectionsResponse> {
@@ -121,8 +130,13 @@ class NavigationActivity : AppCompatActivity() {
                         }
 
                         override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
+                            vNavigation.retrieveNavigationMapboxMap()!!.clearMarkers()
+
                             val navigationOptions = routeController.prepareNavigationOptionsToParking(this@NavigationActivity)
                             vNavigation.startNavigation(navigationOptions)
+
+                            registerParkingUpdates(closestParking)
+
                         }
                     })
             }
@@ -137,7 +151,6 @@ class NavigationActivity : AppCompatActivity() {
                     val parkings = task.result
 
                     val closestParkingLot = ParkingManager.getClosestParking(parkings, routeController.destination!!)
-
                     callback.onSuccess(closestParkingLot)
 
                     for (document in parkings) {
@@ -153,7 +166,7 @@ class NavigationActivity : AppCompatActivity() {
             }
     }
 
-    private fun registerParkingUpdates(closestParkingLot: QueryDocumentSnapshot) {
+    private fun registerParkingUpdates(closestParkingLot: DocumentSnapshot) {
         parklotUpdateRegistration = parkingApi.scanParking(closestParkingLot.id)
             .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                 Logger.log("Snapshot update for ${documentSnapshot!!.id} => ${documentSnapshot.data})")
@@ -162,13 +175,18 @@ class NavigationActivity : AppCompatActivity() {
                     displayErrorMessage("Changing parking lot.")
 
                     unregisterParkingUpdates()
-                    findClosestParkingLot()
+                    navigateToClosestParkingLot()
                 }
             }
     }
 
     private fun displayErrorMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+//        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        val snackbar = Snackbar.make(layoutRoot, message, Snackbar.LENGTH_LONG)
+        snackbar.view.setBackgroundColor(ContextCompat.getColor(this, R.color.blue))
+//        snackbar.view.setBackgroundColor(ContextCompat.getColor(this, R.color.blue))
+        snackbar.show()
+//        btnNavigateToParking.text = "Navigating to nearby pa"
     }
 
     private fun unregisterParkingUpdates() {
@@ -178,7 +196,7 @@ class NavigationActivity : AppCompatActivity() {
 
     val progressChangeListener = object  : ProgressChangeListener {
         override fun onProgressChange(location: Location, routeProgress: RouteProgress) {
-            Logger.log("onProgessChange: ${routeProgress.distanceRemaining()}")
+            Logger.log("onProgressChange: ${routeProgress.distanceRemaining()}")
 
             if (routeProgress.distanceRemaining() < 2000) {
                 vNavigation.retrieveMapboxNavigation()!!.removeProgressChangeListener(this)
