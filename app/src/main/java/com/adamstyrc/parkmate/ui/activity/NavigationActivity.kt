@@ -9,6 +9,8 @@ import android.widget.Toast
 import com.adamstyrc.parkmate.*
 import com.adamstyrc.parkmate.R
 import com.adamstyrc.parkmate.api.ParkingApi
+import com.adamstyrc.parkmate.controller.ParkingManager
+import com.adamstyrc.parkmate.controller.RouteController
 import com.google.firebase.firestore.*
 import kotlinx.android.synthetic.main.activity_navigation.*
 import com.mapbox.api.directions.v5.models.DirectionsResponse

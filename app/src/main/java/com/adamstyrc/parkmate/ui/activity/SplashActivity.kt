@@ -2,10 +2,8 @@ package com.adamstyrc.parkmate.ui.activity
 
 import android.Manifest
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.adamstyrc.parkmate.MapsActivity
 import com.adamstyrc.parkmate.R
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -29,6 +27,7 @@ class SplashActivity : AppCompatActivity() {
                     if (report.areAllPermissionsGranted()) {
                         val intent = Intent(this@SplashActivity, MapsActivity::class.java)
                         startActivity(intent)
+                        finish()
                     }
                 }
 

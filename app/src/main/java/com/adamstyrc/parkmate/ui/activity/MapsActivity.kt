@@ -1,13 +1,15 @@
-package com.adamstyrc.parkmate
+package com.adamstyrc.parkmate.ui.activity
 
 import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.adamstyrc.parkmate.BuildConfig
+import com.adamstyrc.parkmate.R
+import com.adamstyrc.parkmate.controller.RouteController
 import com.adamstyrc.parkmate.api.ParkingApi
 import com.adamstyrc.parkmate.controller.ParkingMarkersController
-import com.adamstyrc.parkmate.ui.activity.NavigationActivity
 import com.google.android.gms.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager

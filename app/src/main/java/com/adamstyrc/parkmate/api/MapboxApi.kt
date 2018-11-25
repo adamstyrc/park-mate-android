@@ -1,4 +1,4 @@
-package com.adamstyrc.parkmate
+package com.adamstyrc.parkmate.api
 
 import android.content.Context
 import com.mapbox.api.directions.v5.models.DirectionsResponse

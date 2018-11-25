@@ -1,7 +1,7 @@
-package com.adamstyrc.parkmate
+package com.adamstyrc.parkmate.controller
 
 import android.location.Location
-import com.google.firebase.firestore.GeoPoint
+import com.adamstyrc.parkmate.getLocation
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.mapbox.geojson.Point

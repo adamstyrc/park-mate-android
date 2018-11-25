@@ -1,7 +1,10 @@
-package com.adamstyrc.parkmate
+package com.adamstyrc.parkmate.controller
 
 import android.app.Activity
 import android.content.Context
+import com.adamstyrc.parkmate.Logger
+import com.adamstyrc.parkmate.api.MapboxApi
+import com.adamstyrc.parkmate.R
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
@@ -22,7 +25,8 @@ class RouteController(val applicationContext: Context) {
 
         fun getInstance (applicationContext: Context? = null) : RouteController {
             if (instance == null) {
-                instance = RouteController(applicationContext!!)
+                instance =
+                        RouteController(applicationContext!!)
             }
 
             return instance!!
